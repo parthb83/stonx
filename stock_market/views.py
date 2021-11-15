@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Stock
-from .forms import StockForm
+from .models import Stock, StockPortfolio, StockFolio
+from .forms import StockForm, BuyStockForm, SellStockForm
 from django.contrib import messages
 from dotenv import load_dotenv
 from django.urls import reverse_lazy
@@ -82,3 +82,80 @@ def news(request):
     api_request = requests.get(f"http://newsapi.org/v2/everything?q=stocks&apiKey={NEWS_API_KEY}")
     api = json.loads(api_request.content)
     return render(request, 'news.html', {'api': api})
+
+
+def portfolio(request):
+    import requests
+    import json
+
+    user = request.user
+    stocks = StockPortfolio.objects.filter(user=user)
+    userfolio = StockFolio.objects.filter(user=user).first()
+    return render(request, 'portfolio.html', {'stocks': stocks, 'folio': userfolio})
+
+
+@login_required
+def buy(request):
+    import requests
+    import json
+
+    if request.method == 'POST':
+        form = BuyStockForm(user=request.user, data=request.POST)
+        
+        if form.is_valid():
+            form.save()
+            user = request.user
+            stocks = StockPortfolio.objects.last()
+            api_request = requests.get(f"https://cloud.iexapis.com/stable/stock/{str(stocks.stock)}/quote?token={IEX_API_KEY}")
+            try:
+                api = json.loads(api_request.content)
+                stocks.cur_price = api['latestPrice']
+                stocks.action = 'BOUGHT'
+                stocks.company = api['companyName']
+                stocks.total_price = stocks.cur_price * stocks.shares
+                stocks.save()
+                stocks.buy(user, stocks.shares, api['latestPrice'])
+            except Exception as e:
+                api = "Error..."	
+
+            messages.success(request, f'Stock bought!')
+            return redirect('portfolio')
+    else:
+        form = BuyStockForm(instance=request.user)
+
+    context = {'form': form}
+
+    return render(request, 'buy.html', context)
+
+
+@login_required
+def sell(request):
+    import requests
+    import json
+
+    if request.method == 'POST':
+        form = SellStockForm(user=request.user, data=request.POST)
+        
+        if form.is_valid():
+            form.save()
+            user = request.user
+            stocks = StockPortfolio.objects.last()
+            api_request = requests.get(f"https://cloud.iexapis.com/stable/stock/{str(stocks.stock)}/quote?token={IEX_API_KEY}")
+            try:
+                api = json.loads(api_request.content)
+                stocks.cur_price = api['latestPrice']
+                stocks.action = 'SOLD'
+                stocks.company = api['companyName']
+                stocks.total_price = stocks.cur_price * stocks.shares
+                stocks.save()
+                stocks.sell(user, stocks.shares, api['latestPrice'])
+            except Exception as e:
+                api = "Error..."
+            messages.success(request, f'Stock sold!')
+            return redirect('portfolio')
+    else:
+        form = SellStockForm(instance=request.user)
+
+    context = {'form': form}
+
+    return render(request, 'sell.html', context)

@@ -39,6 +39,18 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'add_stock' %}">Favorites</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'portfolio' %}">Portfolio</a>
+          </li> 
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" style="border-width: 0px;" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Trade
+            </a>
+            <div class="dropdown-menu bg-aqua" style="border-width: 0px;" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{% url 'buy_stock' %}">Buy</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'sell_stock' %}">Sell</a>
+            </div>
+          </li>
           {% endif %}
         </ul>
         <div class='search-bar'

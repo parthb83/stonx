@@ -64,6 +64,10 @@ def add_stock(request):
     return render(request, 'favorites.html', {'ticker': ticker, 'output':  output})
 
 
+def about(request):
+    return render(request, 'about.html')
+
+
 def delete(request, stock_id):
 	item = Stock.objects.get(pk=stock_id)
 	item.delete()

@@ -30,13 +30,15 @@
             <a class="nav-link" href="{% url 'home' %}">Home</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'about' %}">About</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="{% url 'news' %}">News</a>
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'add_stock' %}">Favorites</a>
           </li>
-         
           {% endif %}
         </ul>
         <div class='search-bar'

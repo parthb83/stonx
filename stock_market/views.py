@@ -1,8 +1,17 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Stock
 from .forms import StockForm
 from django.contrib import messages
 from dotenv import load_dotenv
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.views.generic import (
+    ListView, 
+    DetailView, 
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
 import os
 load_dotenv()
 
@@ -33,32 +42,32 @@ def add_stock(request):
     import json
 
     if request.method == 'POST':
-	    form = StockForm(request.POST or None)
+	    form = StockForm(user=request.user, data=request.POST)
 	
 	    if form.is_valid():
 		    form.save()
-		    messages.success(request, ("Stock has been added to your portfolio!"))
+		    messages.success(request, ("Stock has been added to your favorites!"))
 
-		    return redirect('add_stock')
 
-    else:
-        ticker = Stock.objects.all()
-        output = []
-        for ticker_item in ticker:
-            api_request = requests.get(f"https://cloud.iexapis.com/stable/stock/{str(ticker_item)}/quote?token={IEX_API_KEY}")
-            try:
-                api = json.loads(api_request.content)
-                output.append(api)
-            except Exception as e:
-                api = "Error..."	
+    user = request.user
+    ticker = Stock.objects.all()
+    output = []
+    for ticker_item in ticker:
+        api_request = requests.get(f"https://cloud.iexapis.com/stable/stock/{str(ticker_item)}/quote?token={IEX_API_KEY}")
+        try:
+            api = json.loads(api_request.content)
+            api['id'] = ticker_item.id
+            output.append(api)
+        except Exception as e:
+            api = "Error..."	
 
-        return render(request, 'add_stock.html', {'ticker': ticker, 'output':  output})
+    return render(request, 'favorites.html', {'ticker': ticker, 'output':  output})
 
 
 def delete(request, stock_id):
 	item = Stock.objects.get(pk=stock_id)
 	item.delete()
-	messages.success(request, ("Stock Has Been Deleted From Portfolio!"))
+	messages.success(request, ("Stock Has Been Deleted From Favorites!"))
 	return redirect(add_stock)
 
 

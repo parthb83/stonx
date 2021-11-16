@@ -76,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'stonx.wsgi.application'
 ASGI_APPLICATION = 'stonx.asgi.application'
 
-CHANNEL_LAYER = {
+CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {

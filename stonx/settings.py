@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
     'stock_market',
     'users',
+    'chat',
+    'channels',
     'crispy_forms',
 ]
 
@@ -72,6 +74,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'stonx.wsgi.application'
+ASGI_APPLICATION = 'stonx.asgi.application'
+
+CHANNEL_LAYER = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        }
+    }
+}
 
 
 # Database

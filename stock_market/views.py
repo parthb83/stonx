@@ -50,7 +50,7 @@ def add_stock(request):
 
 
     user = request.user
-    ticker = Stock.objects.all()
+    ticker = Stock.objects.filter(user=user)
     output = []
     for ticker_item in ticker:
         api_request = requests.get(f"https://cloud.iexapis.com/stable/stock/{str(ticker_item)}/quote?token={IEX_API_KEY}")
